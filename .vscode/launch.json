@@ -1,0 +1,40 @@
+{
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:time-mcp-server}",
+      "name": "Debug zipic-mcp-server",
+      "program": "${workspaceFolder:time-mcp-server}/.build/debug/zipic-mcp-server",
+      "preLaunchTask": "swift: Build Debug zipic-mcp-server"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:time-mcp-server}",
+      "name": "Release zipic-mcp-server",
+      "program": "${workspaceFolder:time-mcp-server}/.build/release/zipic-mcp-server",
+      "preLaunchTask": "swift: Build Release zipic-mcp-server"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:time-mcp-server}",
+      "name": "Debug time-mcp-server",
+      "program": "${workspaceFolder:time-mcp-server}/.build/debug/time-mcp-server",
+      "preLaunchTask": "swift: Build Debug time-mcp-server"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:time-mcp-server}",
+      "name": "Release time-mcp-server",
+      "program": "${workspaceFolder:time-mcp-server}/.build/release/time-mcp-server",
+      "preLaunchTask": "swift: Build Release time-mcp-server"
+    }
+  ]
+}
