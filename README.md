@@ -24,20 +24,112 @@
 
 ## Installation
 
-### Option 1: One-Line Installation (curl)
+### Option 1: Download Pre-built Binary
 
-The easiest way to install is with the one-line installer, which automatically downloads the latest version and installs it to `~/.local/bin` in your home directory:
+Download the latest pre-built binary for your platform from the [GitHub Releases](https://github.com/okooo5km/time-mcp-server/releases/latest) page:
 
+Download the binary for your platform from the [GitHub Releases](https://github.com/okooo5km/time-mcp-server/releases/latest) page and follow the installation instructions below.
+
+<details>
+<summary><b>macOS Installation</b></summary>
+
+#### macOS with Apple Silicon (M1/M2/M3):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/okooo5km/time-mcp-server/main/install.sh | bash
+# Download the arm64 version
+curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-macos-arm64.zip -o time-mcp-server.zip
+unzip time-mcp-server.zip
+chmod +x time-mcp-server
+
+# Remove quarantine attribute to avoid security warnings
+xattr -d com.apple.quarantine time-mcp-server
+
+# Install to your local bin directory
+mkdir -p ~/.local/bin
+mv time-mcp-server ~/.local/bin/
+rm time-mcp-server.zip
 ```
 
-The installer will:
+#### macOS with Intel Processor:
+```bash
+# Download the x86_64 version
+curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-macos-x86_64.zip -o time-mcp-server.zip
+unzip time-mcp-server.zip
+chmod +x time-mcp-server
 
-* Create `~/.local/bin` if it doesn't exist
-* Add this directory to your PATH (in .zshrc or .bashrc)
-* Download and install the latest version
-* Make the binary executable
+# Remove quarantine attribute to avoid security warnings
+xattr -d com.apple.quarantine time-mcp-server
+
+# Install to your local bin directory
+mkdir -p ~/.local/bin
+mv time-mcp-server ~/.local/bin/
+rm time-mcp-server.zip
+```
+
+#### macOS Universal Binary (works on both Apple Silicon and Intel):
+```bash
+# Download the universal version
+curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-macos-universal.zip -o time-mcp-server.zip
+unzip time-mcp-server.zip
+chmod +x time-mcp-server
+
+# Remove quarantine attribute to avoid security warnings
+xattr -d com.apple.quarantine time-mcp-server
+
+# Install to your local bin directory
+mkdir -p ~/.local/bin
+mv time-mcp-server ~/.local/bin/
+rm time-mcp-server.zip
+```
+</details>
+
+<details>
+<summary><b>Linux Installation</b></summary>
+
+#### Linux on x86_64 (most common):
+```bash
+# Download the amd64 version
+curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-linux-amd64.tar.gz -o time-mcp-server.tar.gz
+tar -xzf time-mcp-server.tar.gz
+chmod +x time-mcp-server
+
+# Install to your local bin directory
+mkdir -p ~/.local/bin
+mv time-mcp-server ~/.local/bin/
+rm time-mcp-server.tar.gz
+```
+
+#### Linux on ARM64 (e.g., Raspberry Pi 4, AWS Graviton):
+```bash
+# Download the arm64 version
+curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-linux-arm64.tar.gz -o time-mcp-server.tar.gz
+tar -xzf time-mcp-server.tar.gz
+chmod +x time-mcp-server
+
+# Install to your local bin directory
+mkdir -p ~/.local/bin
+mv time-mcp-server ~/.local/bin/
+rm time-mcp-server.tar.gz
+```
+</details>
+
+<details>
+<summary><b>Windows Installation</b></summary>
+
+#### Windows on x86_64 (most common):
+- Download the [Windows AMD64 version](https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-windows-amd64.zip)
+- Extract the ZIP file
+- Move the `time-mcp-server.exe` to a location in your PATH
+
+#### Windows on ARM64 (e.g., Windows on ARM devices):
+- Download the [Windows ARM64 version](https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-windows-arm64.zip)
+- Extract the ZIP file
+- Move the `time-mcp-server.exe` to a location in your PATH
+</details>
+
+Make sure the installation directory is in your PATH:
+
+- **macOS/Linux**: Add `export PATH="$HOME/.local/bin:$PATH"` to your shell configuration file (`.bashrc`, `.zshrc`, etc.)
+- **Windows**: Add the directory to your system PATH through the System Properties > Environment Variables dialog
 
 ### Option 2: Build from Source
 
@@ -50,6 +142,29 @@ The installer will:
 
 2. Build the project:
 
+   **Using Make (recommended):**
+   ```bash
+   # Build for your current platform
+   make
+   
+   # Or build for a specific platform
+   make build-darwin-universal    # macOS Universal Binary
+   make build-darwin-arm64        # macOS Apple Silicon
+   make build-darwin-amd64        # macOS Intel
+   make build-linux-amd64         # Linux x86_64
+   make build-linux-arm64         # Linux ARM64
+   make build-windows-amd64       # Windows x86_64
+   
+   # Or build for all platforms at once
+   make build-all
+   
+   # Create distribution packages for all platforms
+   make dist
+   ```
+   
+   The binaries will be placed in the `.build` directory.
+
+   **Using Swift directly:**
    ```bash
    swift build -c release
    ```
@@ -59,7 +174,7 @@ The installer will:
    ```bash
    # Install to user directory (recommended, no sudo required)
    mkdir -p ~/.local/bin
-   cp $(swift build -c release --show-bin-path)/time-mcp-server ~/.local/bin/
+   cp time-mcp-server ~/.local/bin/
    ```
 
    Make sure `~/.local/bin` is in your PATH by adding to your shell configuration file:
@@ -75,6 +190,11 @@ The server supports the following command line arguments:
 
 * `-h, --help`: Display help information about the server, its usage, and available options
 * `-v, --version`: Display the version number of the time-mcp-server
+* `-t, --transport <string>`: Transport type to use (default: "stdio")
+  * `stdio`: Standard input/output mode for direct integration with LLMs
+  * `sse`: Server-Sent Events mode for web-based connections
+* `-p, --port <int>`: Port to use when running in SSE mode (default: 8080)
+* `-l, --local-timezone <string>`: Override the automatically detected local timezone with a specific IANA timezone name
 
 Example usage:
 
@@ -84,7 +204,21 @@ time-mcp-server --help
 
 # Display version information
 time-mcp-server --version
+
+# Start server with default settings (stdio mode)
+time-mcp-server
+
+# Start server in SSE mode on the default port (8080)
+time-mcp-server --transport sse
+
+# Start server in SSE mode on a custom port
+time-mcp-server --transport sse --port 9090
+
+# Start server with a specific local timezone
+time-mcp-server --local-timezone Europe/London
 ```
+
+When running in SSE mode, the server will be accessible via HTTP on the specified port, allowing web-based clients to connect. In stdio mode (default), the server communicates through standard input/output, which is ideal for direct integration with LLM applications.
 
 ### Configure for Claude.app
 
@@ -112,8 +246,6 @@ Add the following configuration to your Cursor editor's Settings - mcp.json:
 }
 ```
 
-![cursor](screenshots/cursor.webp)
-
 ### Configure for ChatWise
 
 Add the memory MCP server to your Chatwise Settings - Tools.
@@ -136,7 +268,7 @@ Use the following tools appropriately:
 - `get_current_time` for checking the current time in a specific timezone
 - `convert_time` when the user needs to convert between timezones
 
-Always use proper IANA timezone names (e.g., 'America/New_York', 'Europe/London', 'Asia/Tokyo') 
+Always use proper IANA timezone names (e.g., 'America/New_York', 'Europe/London', 'Asia/Tokyo')
 rather than abbreviations or common names.
 ```
 
