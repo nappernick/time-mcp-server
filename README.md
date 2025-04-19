@@ -146,7 +146,7 @@ Make sure the installation directory is in your PATH:
    ```bash
    # Build for your current platform
    make
-   
+
    # Or build for a specific platform
    make build-darwin-universal    # macOS Universal Binary
    make build-darwin-arm64        # macOS Apple Silicon
@@ -154,14 +154,14 @@ Make sure the installation directory is in your PATH:
    make build-linux-amd64         # Linux x86_64
    make build-linux-arm64         # Linux ARM64
    make build-windows-amd64       # Windows x86_64
-   
+
    # Or build for all platforms at once
    make build-all
-   
+
    # Create distribution packages for all platforms
    make dist
    ```
-   
+
    The binaries will be placed in the `.build` directory.
 
    **Using Swift directly:**
@@ -227,7 +227,8 @@ Add to your Claude settings:
 ```json
 "mcpServers": {
   "RealTime": {
-    "command": "time-mcp-server"
+    "command": "time-mcp-server",
+    "args": ["-l", "Asia/Shanghai"]
   }
 }
 ```
@@ -240,7 +241,8 @@ Add the following configuration to your Cursor editor's Settings - mcp.json:
 {
   "mcpServers": {
     "RealTime": {
-      "command": "time-mcp-server"
+      "command": "time-mcp-server",
+      "args": ["-l", "Asia/Shanghai"]
     }
   }
 }
