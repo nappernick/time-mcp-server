@@ -1,363 +1,679 @@
 # Time MCP Server
 
-> A Model Context Protocol server that provides time-related capabilities. This server enables LLMs to access current time information and convert times between different timezones. This is a Swift implementation of a time MCP server using the MCP Swift SDK.
+> A Model Context Protocol server that provides comprehensive time-related capabilities including current time lookup, timezone conversion, daylight-saving detection, and natural-language date parsing. Available in **Go** and **Python** implementations with a full **TypeScript** client and test suite.
 
-![Swift Platform](https://img.shields.io/badge/platform-macOS-lightgrey)
+![Go](https://img.shields.io/badge/language-Go-blue)
+![Python](https://img.shields.io/badge/language-Python-green)
+![TypeScript](https://img.shields.io/badge/language-TypeScript-blue)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## ✨ Features
 
-* **Current Time Queries**: Get the current time in any timezone
-* **Time Zone Conversions**: Convert time between different timezones
-* **Daylight Saving Time Information**: Check if a timezone is currently in DST
-* **Time Difference Calculation**: Get the time difference between timezones when converting
+* **Current Time Queries** – get the current time in any timezone  
+* **Time-zone Conversions** – convert a HH:MM time between zones  
+* **Daylight-Saving Detection** – know if a zone is in DST  
+* **Time-difference Calculation** – hours offset when converting  
+* **Natural-language Date Parsing** – "next Friday at noon", "3 days from now"  
 
 ## Available Tools
 
-* `get_current_time` - Get the current time in a specific timezone
-  * `timezone` (string, required): IANA timezone name (e.g., 'America/New_York', 'Europe/London'). If empty or not provided, the system timezone will be used.
+| Tool | Purpose | Arguments |
+|------|---------|-----------|
+| `get_current_time` | current time for a zone | `timezone` (string, optional) |
+| `convert_time` | convert HH:MM between zones | `source_timezone` (string, required) • `time` (HH:MM, required) • `target_timezone` (string, required) |
+| `parse_natural_time` | parse English date phrases | `expression` (string, required) • `timezone` (string, optional) |
 
-* `convert_time` - Convert time between timezones
-  * `source_timezone` (string, required): Source IANA timezone name. If empty or not provided, the system timezone will be used.
-  * `time` (string, required): Time to convert in 24-hour format (HH:MM)
-  * `target_timezone` (string, required): Target IANA timezone name. If empty or not provided, the system timezone will be used.
-
-## Installation
-
-### Option 1: Download Pre-built Binary
-
-Download the latest pre-built binary for your platform from the [GitHub Releases](https://github.com/okooo5km/time-mcp-server/releases/latest) page:
-
-Download the binary for your platform from the [GitHub Releases](https://github.com/okooo5km/time-mcp-server/releases/latest) page and follow the installation instructions below.
-
-<details>
-<summary><b>macOS Installation</b></summary>
-
-#### macOS with Apple Silicon (M1/M2/M3):
-```bash
-# Download the arm64 version
-curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-macos-arm64.zip -o time-mcp-server.zip
-unzip time-mcp-server.zip
-chmod +x time-mcp-server
-
-# Remove quarantine attribute to avoid security warnings
-xattr -d com.apple.quarantine time-mcp-server
-
-# Install to your local bin directory
-mkdir -p ~/.local/bin
-mv time-mcp-server ~/.local/bin/
-rm time-mcp-server.zip
+## Project Structure
 ```
 
-#### macOS with Intel Processor:
-```bash
-# Download the x86_64 version
-curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-macos-x86_64.zip -o time-mcp-server.zip
-unzip time-mcp-server.zip
-chmod +x time-mcp-server
+time-mcp-server/
+├── main.go                    # Go server implementation
+├── parse_natural_test.go      # Go tests with deterministic time injection
+├── time_mcp_server.py         # Python server implementation  
+├── run_time_server.sh         # Python server launcher script
+└── ts/                        # TypeScript client & tests
+    ├── src/mcp-client.ts      # Full-featured MCP client
+    ├── tests/                 # Comprehensive test suite
+    │   ├── parseNaturalTime.test.ts
+    │   └── parseNaturalTimeEdgeCases.test.ts
+    ├── package.json
+    ├── jest.config.js
+    └── tsconfig.json
 
-# Remove quarantine attribute to avoid security warnings
-xattr -d com.apple.quarantine time-mcp-server
+FileEditView
 
-# Install to your local bin directory
-mkdir -p ~/.local/bin
-mv time-mcp-server ~/.local/bin/
-rm time-mcp-server.zip
+Copy
+
+Focus
+
 ```
+## Quick Start
 
-#### macOS Universal Binary (works on both Apple Silicon and Intel):
-```bash
-# Download the universal version
-curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-macos-universal.zip -o time-mcp-server.zip
-unzip time-mcp-server.zip
-chmod +x time-mcp-server
-
-# Remove quarantine attribute to avoid security warnings
-xattr -d com.apple.quarantine time-mcp-server
-
-# Install to your local bin directory
-mkdir -p ~/.local/bin
-mv time-mcp-server ~/.local/bin/
-rm time-mcp-server.zip
-```
-</details>
-
-<details>
-<summary><b>Linux Installation</b></summary>
-
-#### Linux on x86_64 (most common):
-```bash
-# Download the amd64 version
-curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-linux-amd64.tar.gz -o time-mcp-server.tar.gz
-tar -xzf time-mcp-server.tar.gz
-chmod +x time-mcp-server
-
-# Install to your local bin directory
-mkdir -p ~/.local/bin
-mv time-mcp-server ~/.local/bin/
-rm time-mcp-server.tar.gz
-```
-
-#### Linux on ARM64 (e.g., Raspberry Pi 4, AWS Graviton):
-```bash
-# Download the arm64 version
-curl -L https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-linux-arm64.tar.gz -o time-mcp-server.tar.gz
-tar -xzf time-mcp-server.tar.gz
-chmod +x time-mcp-server
-
-# Install to your local bin directory
-mkdir -p ~/.local/bin
-mv time-mcp-server ~/.local/bin/
-rm time-mcp-server.tar.gz
-```
-</details>
-
-<details>
-<summary><b>Windows Installation</b></summary>
-
-#### Windows on x86_64 (most common):
-- Download the [Windows AMD64 version](https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-windows-amd64.zip)
-- Extract the ZIP file
-- Move the `time-mcp-server.exe` to a location in your PATH
-
-#### Windows on ARM64 (e.g., Windows on ARM devices):
-- Download the [Windows ARM64 version](https://github.com/okooo5km/time-mcp-server/releases/latest/download/time-mcp-server-windows-arm64.zip)
-- Extract the ZIP file
-- Move the `time-mcp-server.exe` to a location in your PATH
-</details>
-
-Make sure the installation directory is in your PATH:
-
-- **macOS/Linux**: Add `export PATH="$HOME/.local/bin:$PATH"` to your shell configuration file (`.bashrc`, `.zshrc`, etc.)
-- **Windows**: Add the directory to your system PATH through the System Properties > Environment Variables dialog
-
-### Option 2: Build from Source
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/okooo5km/time-mcp-server.git
-   cd time-mcp-server
-   ```
-
-2. Build the project:
-
-   **Using Make (recommended):**
-   ```bash
-   # Build for your current platform
-   make
-
-   # Or build for a specific platform
-   make build-darwin-universal    # macOS Universal Binary
-   make build-darwin-arm64        # macOS Apple Silicon
-   make build-darwin-amd64        # macOS Intel
-   make build-linux-amd64         # Linux x86_64
-   make build-linux-arm64         # Linux ARM64
-   make build-windows-amd64       # Windows x86_64
-
-   # Or build for all platforms at once
-   make build-all
-
-   # Create distribution packages for all platforms
-   make dist
-   ```
-
-   The binaries will be placed in the `.build` directory.
-
-   **Using Swift directly:**
-   ```bash
-   swift build -c release
-   ```
-
-3. Install the binary:
-
-   ```bash
-   # Install to user directory (recommended, no sudo required)
-   mkdir -p ~/.local/bin
-   cp time-mcp-server ~/.local/bin/
-   ```
-
-   Make sure `~/.local/bin` is in your PATH by adding to your shell configuration file:
-
-   ```bash
-   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc  # or ~/.bashrc
-   source ~/.zshrc  # or source ~/.bashrc
-   ```
-
-## Command Line Arguments
-
-The server supports the following command line arguments:
-
-* `-h, --help`: Display help information about the server, its usage, and available options
-* `-v, --version`: Display the version number of the time-mcp-server
-* `-t, --transport <string>`: Transport type to use (default: "stdio")
-  * `stdio`: Standard input/output mode for direct integration with LLMs
-  * `sse`: Server-Sent Events mode for web-based connections
-* `-p, --port <int>`: Port to use when running in SSE mode (default: 8080)
-* `-l, --local-timezone <string>`: Override the automatically detected local timezone with a specific IANA timezone name
-
-Example usage:
+### 1. Go Server (Recommended)
 
 ```bash
-# Display help information
-time-mcp-server --help
+# Build the server
+go build -o time-mcp-server .
 
-# Display version information
-time-mcp-server --version
+# Run with default settings (stdio transport)
+./time-mcp-server
 
-# Start server with default settings (stdio mode)
-time-mcp-server
+# Run with specific timezone and SSE transport
+./time-mcp-server --local-timezone="America/New_York" --transport=sse --port=8080
 
-# Start server in SSE mode on the default port (8080)
-time-mcp-server --transport sse
-
-# Start server in SSE mode on a custom port
-time-mcp-server --transport sse --port 9090
-
-# Start server with a specific local timezone
-time-mcp-server --local-timezone Europe/London
+# Run tests with deterministic time injection
+go test -v
 ```
 
-When running in SSE mode, the server will be accessible via HTTP on the specified port, allowing web-based clients to connect. In stdio mode (default), the server communicates through standard input/output, which is ideal for direct integration with LLM applications.
+### 2. Python Server (Alternative)
 
-### Configure for Claude.app
+FileEditView
 
-Add to your Claude settings:
+Copy
 
-```json
+Focus
+
+```
+# Install dependencies
+pip install mcp fastmcp python-dateutil recurrent zoneinfo tzlocal
+
+# Run directly
+python time_mcp_server.py
+
+# Or use the provided script
+chmod +x run_time_server.sh
+./run_time_server.sh
+```
+
+### 3. TypeScript Client & Tests
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+cd ts/
+
+# Install dependencies
+npm install
+# or
+bun install
+
+# Build the client
+npm run build
+
+# Run the client CLI
+npm start
+
+# Run comprehensive test suite
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run with coverage
+npm run test:coverage
+```
+
+## Building & Cross-Compilation
+
+### Go Server - Multi-platform Builds
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+# Build for current platform
+make
+
+# Build for all platforms
+make build-all
+
+# Build for specific platforms
+make build-darwin-universal    # macOS Universal Binary
+make build-darwin-arm64        # macOS Apple Silicon
+make build-linux-amd64         # Linux x86_64
+make build-windows-amd64       # Windows x86_64
+
+# Create distribution packages
+make dist
+
+# Clean build artifacts
+make clean
+```
+
+Built binaries will be in 
+
+```
+.build/
+```
+
+ directory.
+
+### TypeScript Client
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+cd ts/
+
+# Development build
+npm run build
+
+# Production build with optimizations
+tsc --build --clean && tsc
+```
+
+## Testing
+
+### Go Server Tests
+
+The Go implementation includes sophisticated tests with deterministic time injection for reliable testing of time-dependent functionality:
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+# Run all tests
+go test -v
+
+# Run specific test
+go test -v -run TestTimeServerParseNatural_Deterministic
+
+# Run with race detection
+go test -race -v
+```
+
+Key test features:
+- Fixed reference time injection for consistent results
+- DST transition testing (spring forward/fall back)
+- Timezone conversion validation
+- Natural language parsing edge cases
+
+### TypeScript Client Tests
+
+Comprehensive Jest-based test suite covering happy paths and edge cases:
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+cd ts/
+
+# Run all tests
+npm test
+
+# Run specific test file
+npm test parseNaturalTime.test.ts
+
+# Run with verbose output
+VERBOSE_TESTS=true npm test
+
+# Watch mode for development
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+```
+
+## Test features:
+
+- Multi-path server discovery (handles different build locations)
+- Process lifecycle management (proper cleanup)
+- Error handling validation
+- Timezone-aware assertions
+
+## Command Line Options
+
+### Go Server
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+./time-mcp-server [OPTIONS]
+
+Options:
+-t, --transport string     Transport type: "stdio" or "sse" (default: "stdio")
+-p, --port int            Port for SSE transport (default: 8080)
+-l, --local-timezone string  Override detected local timezone
+-v, --version             Show version and exit
+-h, --help               Show help and exit
+```
+
+### TypeScript Client
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+cd ts/
+
+# Run client CLI
+npm start
+
+# Interactive mode (not yet implemented)
+npm run interactive
+```
+
+## Integration Examples
+
+### Claude Desktop
+
+Add to your 
+
+```
+claude_desktop_config.json
+```
+
+:
+
+json
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+{
 "mcpServers": {
-  "RealTime": {
-    "command": "time-mcp-server",
-    "args": ["-l", "Asia/Shanghai"]
+  "time-server": {
+    "command": "/path/to/time-mcp-server",
+    "args": ["--local-timezone", "America/Chicago"]
   }
+}
 }
 ```
 
-### Configure for Cursor
+### Cursor IDE
 
-Add the following configuration to your Cursor editor's Settings - mcp.json:
+Add to your Cursor 
 
-```json
+```
+mcp.json
+```
+
+:
+
+json
+
+FileEditView
+
+Copy
+
+Focus
+
+```
 {
-  "mcpServers": {
-    "RealTime": {
-      "command": "time-mcp-server",
-      "args": ["-l", "Asia/Shanghai"]
-    }
+"mcpServers": {
+  "time-server": {
+    "command": "/path/to/time-mcp-server",
+    "args": ["--transport", "stdio"]
   }
+}
 }
 ```
 
-### Configure for ChatWise
+### Programmatic Usage (TypeScript)
 
-Add the memory MCP server to your Chatwise Settings - Tools.
+typescript
 
-![chatwise-settings-tools](screenshots/chatwise.webp)
+FileEditView
 
-### Example System Prompt
+Copy
 
-You can use the following system prompt to help Claude utilize the time-mcp-server effectively:
+Focus
 
 ```
-You have access to time-related tools through MCP. Use these to help users:
+import { MCPClient } from './ts/src/mcp-client';
 
-- Get the current time in any timezone
-- Convert times between timezones
-- Calculate time differences between locations
-- Plan meetings across different timezones
+const client = new MCPClient('/path/to/time-mcp-server', [
+'--transport', 'stdio',
+'--local-timezone', 'UTC'
+]);
 
-Use the following tools appropriately:
-- `get_current_time` for checking the current time in a specific timezone
-- `convert_time` when the user needs to convert between timezones
+await client.connect();
+await client.initialize();
 
-Always use proper IANA timezone names (e.g., 'America/New_York', 'Europe/London', 'Asia/Tokyo')
-rather than abbreviations or common names.
+// Get current time
+const now = await client.getCurrentTime('America/New_York');
+
+// Convert time between zones
+const converted = await client.convertTime('UTC', '14:30', 'Asia/Tokyo');
+
+// Parse natural language
+const parsed = await client.parseNaturalTime('next Friday at 3pm', 'Europe/London');
+
+client.disconnect();
 ```
 
-## Development Requirements
+## API Examples
 
-* Swift 6.0 or later
-* macOS 14.0 or later
-* MCP Swift SDK 0.2.0 or later
+### Current Time
 
-## Usage Examples
+Request:
 
-### Getting Current Time
+json
 
-```json
+FileEditView
+
+Copy
+
+Focus
+
+```
 {
-  "timezone": "America/New_York"
+"name": "get_current_time",
+"arguments": { "timezone": "America/New_York" }
 }
 ```
 
 Response:
 
-```json
+json
+
+FileEditView
+
+Copy
+
+Focus
+
+```
 {
-  "timezone": "America/New_York",
-  "datetime": "2024-11-05T14:30:45-05:00",
-  "is_dst": false
+"timezone": "America/New_York",
+"datetime": "2024-11-05T14:30:45-05:00",
+"is_dst": false
 }
 ```
 
-### Converting Time
+### Time Conversion
 
-```json
+Request:
+
+json
+
+FileEditView
+
+Copy
+
+Focus
+
+```
 {
+"name": "convert_time",
+"arguments": {
   "source_timezone": "America/Los_Angeles",
   "time": "15:30",
   "target_timezone": "Asia/Tokyo"
 }
+}
 ```
 
 Response:
 
-```json
+json
+
+FileEditView
+
+Copy
+
+Focus
+
+```
 {
-  "source": {
-    "timezone": "America/Los_Angeles",
-    "datetime": "2024-11-05T15:30:00-08:00",
-    "is_dst": false
-  },
-  "target": {
-    "timezone": "Asia/Tokyo",
-    "datetime": "2024-11-06T08:30:00+09:00",
-    "is_dst": false
-  },
-  "time_difference": "+17h"
+"source": {
+  "timezone": "America/Los_Angeles",
+  "datetime": "2024-11-05T15:30:00-08:00",
+  "is_dst": false
+},
+"target": {
+  "timezone": "Asia/Tokyo", 
+  "datetime": "2024-11-06T08:30:00+09:00",
+  "is_dst": false
+},
+"time_difference": "+17h"
 }
 ```
 
-## Use Cases
+### Natural Language Parsing
 
-* **International Meeting Planning**: Schedule meetings across different timezones
-* **Travel Planning**: Check local times at destination
-* **Remote Work Coordination**: Coordinate work hours with international teams
-* **Event Scheduling**: Set up global events with correct local times
-* **Time-Sensitive Operations**: Ensure operations happen at the correct local time
+Request:
 
-## Version History
+json
 
-See GitHub Releases for version history and changelog.
+FileEditView
 
-## ☕️ Support the Project
+Copy
 
-If you find time-mcp-server helpful, please consider supporting its development:
+Focus
 
-* ⭐️ Star the project on GitHub
-* 🐛 Report bugs or suggest features
-* 💝 Support via:
+```
+{
+"name": "parse_natural_time",
+"arguments": {
+  "expression": "next Friday at noon",
+  "timezone": "America/Chicago"
+}
+}
+```
 
-<p align="center">
-  <a href="https://buymeacoffee.com/okooo5km">
-    <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=okooo5km&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" style="border-radius: 8px;" />
-  </a>
-</p>
+Response:
+
+json
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+{
+"timezone": "America/Chicago",
+"datetime": "2024-11-08T12:00:00-06:00", 
+"is_dst": false
+}
+```
+
+## Development
+
+### Prerequisites
+
+- Go 1.24.3+ (for Go server)
+- Python 3.8+ (for Python server)
+- Node.js 18+ (for TypeScript client)
+- Make (for build automation)
+
+### Development Workflow
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+# 1. Clone and setup
+git clone <repository>
+cd time-mcp-server
+
+# 2. Go development
+go mod tidy
+go build -o time-mcp-server .
+go test -v
+
+# 3. TypeScript development  
+cd ts/
+npm install
+npm run build
+npm test
+
+# 4. Python development
+pip install -r requirements.txt  # if you create one
+python time_mcp_server.py
+```
+
+### Adding New Features
+
+1. Go Server: Add to 
+
+```
+main.go
+```
+
+, update tests in 
+
+```
+parse_natural_test.go
+```
+2. TypeScript Client: Update 
+
+```
+src/mcp-client.ts
+```
+
+, add tests in 
+
+```
+tests/
+```
+3. Python Server: Modify 
+
+```
+time_mcp_server.py
+```
+
+## Troubleshooting
+
+### Common Issues
+
+Go build fails:
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+go mod tidy
+go clean -cache
+```
+
+TypeScript tests fail to find server:
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+# Ensure server is built
+go build -o time-mcp-server .
+# Or check test paths in test files
+```
+
+Python server import errors:
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+pip install --upgrade mcp fastmcp python-dateutil recurrent
+```
+
+### Debug Mode
+
+Go server with verbose logging:
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+./time-mcp-server --transport=sse --port=8080
+# Check stderr for detailed logs
+```
+
+TypeScript tests with verbose output:
+
+bash
+
+FileEditView
+
+Copy
+
+Focus
+
+```
+VERBOSE_TESTS=true npm test
+```
 
 ## License
 
-time-mcp-server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License.
+MIT License - see LICENSE file for details.
 
-## About
+## Contributing
 
-A Swift implementation of a time server for Model Context Protocol (MCP), enabling AI assistants to access current time information and convert between timezones. This project is built using the MCP Swift SDK.
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass: 
+
+```
+go test -v && cd ts && npm test
+```
+5. Submit a pull request
+
+Note: The Go implementation is the primary/recommended server due to its performance and comprehensive natural language parsing capabilities. The Python implementation provides an alternative for Python-centric environments.
