@@ -3,7 +3,7 @@
 
 APP_NAME=time-mcp-server
 BUILD_DIR=.build
-VERSION=0.1.1
+VERSION=0.1.2
 LDFLAGS=-ldflags "-s -w -X main.version=$(VERSION)"
 
 .PHONY: all clean build-all \
