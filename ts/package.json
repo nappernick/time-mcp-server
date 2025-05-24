@@ -1,0 +1,32 @@
+{
+  "name": "mcp-client-test",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "mcp-client.js",
+  "scripts": {
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --watch",
+    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage",
+    "build": "tsc",
+    "start": "tsx mcp-client.ts",
+    "interactive": "tsx mcp-client.ts interactive"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "tolerant-json-parser": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.10.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["mcp", "model-context-protocol", "client", "time", "testing"],
+  "author": "",
+  "license": "MIT"
+}
